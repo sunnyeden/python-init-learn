@@ -29,7 +29,7 @@ def main():
 
     # 关闭套接字
     tcp_client_socket.close()
-    
+
 if __name__ == "__main__":
     main()
 ```
@@ -90,7 +90,7 @@ def main():
 
     # 关闭套接字
     tcp_client_socket.close()
-    
+
 if __name__ == "__main__":
     main()
 ```

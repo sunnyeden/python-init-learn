@@ -139,6 +139,7 @@ requests.get(url, timeout=10) # 设置超时
 #### json数据处理
 
 ```python
+# encoding = utf-8
 import json, requests
 from parse_url import parse_url
 from pprint import pprint
@@ -158,27 +159,4 @@ pprint(ret)
 # 美化写入
 with open("文件名", "wb", encoding="utf-8") as f:
     f.write(json.dumps(ret, ensure_ascii=False, indent=2))
-```
-
-#### xpath模块使用
-
-`pip install lxml`
-
-```python
-from lxml import etree
-
-text = '''
-        <li class='item-01'><a href='link1.html'>test1</li>
-        <li class='item-02'><a href='link2.html'>test2</li>
-        <li class='item-03'><a href='link3.html'>test3</li>
-        <li class='item-04'><a href='link4.html'>test4</li>
-        <li class='item-05'><a href='link5.html'>test5</li>
-        '''
-html = etree.HTML(text)
-print(html)
-print(etree.tostring(html).decode())
-
-ret1 = html.xpath("//li[@class='item-04']/a/text()")
-
-ret2 = html.xpath("//li[@class='item-04']/a/@href")
 ```
