@@ -1,5 +1,5 @@
 # encoding=utf-8
-import requests, json, time
+import requests, json, time, re
 from retrying import retry
 
 class Xinxin():
@@ -8,14 +8,13 @@ class Xinxin():
         self.login_url = "https://webapi.693975.com/web/index.php?r=login/login"
         self.logout_url = "https://webapi.693975.com/web/index.php?r=user/out"
         self.user_url = "https://webapi.693975.com/web/index.php?r=user/state"
-        self.headers = {
-            "cookie": "PHPSESSID=up5t81n0kfr297iu9ijm5pe34l"
-        }
 
     def down_captcha(self):
-        response = self.request(self.captcha_url).content
+        response = self.request(self.captcha_url)
+        cookies = re.search(r"PHPSESSID=(\w+);", response.headers['Set-Cookie']).group(1)
+        print("验证码的PHPSESSID=", cookies)
         with open("./captcha.png", 'wb') as f:
-            f.write(response)
+            f.write(response.content)
 
     def login(self, username, password, code):
         login_data = {
@@ -23,8 +22,10 @@ class Xinxin():
             "password": password,
             "code": code
         }
-        response = json.loads(self.request(self.login_url, login_data).text)
-        print(response)
+        response = self.request(self.login_url, login_data)
+        cookies = re.search(r"PHPSESSID=(\w+);", response.headers['Set-Cookie']).group(1)
+        print("登陆的PHPSESSID=", cookies)
+        print(json.loads(response.text))
 
     def get_user_info(self):
         response = json.loads(self.request(self.user_url).text)
@@ -38,7 +39,7 @@ class Xinxin():
     @retry(stop_max_attempt_number=3)
     def request(self, url, params = ''):
         session = requests.session()
-        response = session.get(url, params=params, headers=self.headers, timeout=10)
+        response = session.get(url, params=params, timeout=10)
         # print(response.request.headers)
         assert response.status_code == 200
         return response

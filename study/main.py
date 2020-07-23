@@ -1,50 +1,36 @@
 # encoding = utf-8
-import multiprocessing
-import os, time
+import requests, time
 
-def copy_file(q, file_name, old_file_path, new_file_path):
-    old_file = open(old_file_path + '/' + file_name, 'rb')
-    content = old_file.read()
-    old_file.close()
+# 设置请求头
+headers = {
+    "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
+}
 
-    new_file = open(new_file_path + '/' + file_name, 'wb')
-    new_file.write(content)
-    new_file.close()
-    q.put(file_name)
+# 设置请求参数
+params = {
+    "who": "felix",
+    "time": time.time()
+}
 
-def main():
-    old_file_path = input("请输入要复制的文件夹\n")
+# 设置代理
+proxies = {
+    "http": "http://12.34.56.79:9527",
+    "https": "https://12.34.56.79:9527"
+}
 
-    new_file_path = old_file_path + "[复件]"
-    try:
-        os.mkdir(new_file_path)
-    except:
-        pass
+response = requests.get("https://www.tanwan.com", headers=headers, params=params, proxies=proxies)
 
-    file_names = os.listdir(old_file_path)
-    # print(file_names)
+# 响应头
+print(response.headers)
 
-    po = multiprocessing.Pool(5)
+# 请求头
+print(response.request.headers)
 
-    q = multiprocessing.Manager().Queue()
+# 请求的url
+print(response.request.url)
 
-    for file_name in file_names:
-        po.apply_async(copy_file, args=(q, file_name, old_file_path, new_file_path, ))
+# 请求状态
+assert response.status_code == 200
 
-    po.close()
-    #po.join()
-    count = len(file_names)
-    offset = 0
-    while True:
-        file = q.get()
-        offset += 1
-        rate = offset * 100 / count
-        print("%s复制成功，进度%0.2f\n" % (file, rate))
-        # print("\r%s复制成功，进度%0.2f" % (file, rate), end='')
-
-        if offset >= count:
-            break
-
-
-if __name__ == "__main__":
-    main()
+# 请求内容
+print(response.text)
